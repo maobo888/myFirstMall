@@ -103,12 +103,15 @@ export default {
       switch (index) {
         case 0:
           this.currentType = 'pop'
+          this.$refs.scroll.scrollTo(0,-535)
           break
         case 1:
           this.currentType = 'new'
+          this.$refs.scroll.scrollTo(0,-535)
           break
         case 2:
           this.currentType = 'sell'
+          this.$refs.scroll.scrollTo(0,-535)
           break
       }
       //让两个tab-control按钮保持一致

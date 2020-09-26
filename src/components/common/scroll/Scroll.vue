@@ -44,22 +44,18 @@ export default {
     //监听上拉事件
     if (this.pullUpLoad) {
       this.scroll.on('pullingUp', () => {
-        console.log('pullingUp');
         this.$emit('pullingUp')
       })
     }
   },
   methods: {
     scrollTo(x,y,time=300) {
-      console.log('scrollTo');
       this.scroll && this.scroll.scrollTo && this.scroll.scrollTo(x,y,time)
     },
     finishPullUp() {
-      console.log('finishPullUp');
       this.scroll && this.scroll.finishPullUp && this.scroll.finishPullUp()
     },
     refresh() {
-      console.log('refresh');
       this.scroll && this.scroll.refresh && this.scroll && this.scroll.refresh()
     },
     getScrollY() {

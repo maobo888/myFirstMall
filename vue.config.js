@@ -10,9 +10,9 @@ module.exports = {
       }
     }
   },
-  // devServer: {
-  //   public: '192.168.1.4:8080',
-  //   hot: true,
-  //   disableHostCheck: true,
-  // }
+  devServer: {
+    public: '192.168.137.1:8080',
+    hot: true,
+    disableHostCheck: true,
+  }
 }
