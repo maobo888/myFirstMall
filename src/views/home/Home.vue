@@ -1,6 +1,8 @@
 <template>
   <div id="home">
-    <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
+    <nav-bar class="home-nav">
+      <div slot="center">购物街</div>
+    </nav-bar>
     <tab-control :titles="['流行','新款','精选']"
                  @tabClick="tabClick"
                  ref="tabControl1"
@@ -13,7 +15,8 @@
             :data="goods[this.currentType].list"
             @scroll="contentScroll"
             @pullingUp="loadMore">
-      <home-swiper :banners="banners" @swiperImageLoad="swiperImageLoad"/>
+      <home-swiper :banners="banners"
+                   @swiperImageLoad="swiperImageLoad"/>
       <home-recommend-view :recommends="recommends"/>
       <feature-view/>
       <tab-control :titles="['流行','新款','精选']"
@@ -21,7 +24,8 @@
                    ref="tabControl2"/>
       <good-list :goods="showGoods"/>
     </scroll>
-    <back-top @click.native="backClick" v-show="isShowBackTop"/>
+    <back-top @click.native="backClick"
+              v-show="isShowBackTop"/>
   </div>
 </template>
 
@@ -37,6 +41,7 @@ import BackTop from "components/content/backTop/BackTop";
 
 import {getHomeMultidata, getHomeGoods} from "network/home"
 import {debounce} from "common/utils";
+import {test} from 'common/mixin'
 
 export default {
   name: "Home",
@@ -50,6 +55,7 @@ export default {
     Scroll,
     BackTop,
   },
+  mixins:[test],
   data() {
     return {
       banners: [],
@@ -63,7 +69,7 @@ export default {
       isShowBackTop: false, //是否展示回到顶部按钮
       tabOffsetTop: 0,      //tab-control的吸顶位置
       isTabFixed: false,    //决定tabControl是否吸顶
-      saveY: 0              //保存用户刷到页面的位置
+      saveY: 0,             //保存用户刷到页面的位置
     }
   },
   computed: {
@@ -82,7 +88,8 @@ export default {
   },
   mounted() {
     // 1.图片加载完成的事件监听
-    const refresh = debounce(this.$refs.scroll.refresh, 500)
+    const refresh = debounce(this.$refs.scroll.refresh, 200)
+
     // 监听item中图片加载完成
     this.$bus.$on('itemImageLoad',() => {
       refresh()
@@ -93,7 +100,10 @@ export default {
     this.$refs.scroll.refresh();
   },
   deactivated() {
+    // 1.保存y值
     this.saveY = this.$refs.scroll.getScrollY();
+
+    // 2.取消全局事件监听
   },
   methods: {
     /*

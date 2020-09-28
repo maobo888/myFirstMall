@@ -1,7 +1,7 @@
 <template>
   <div class="goods-item" @click="itemClick">
-    <img :src="goodsItem.show.img"
-         :key="goodsItem.show.img"
+    <img :src="showImage"
+         :key="showImage"
          alt=""
          @load="imageLoad">
     <div class="goods-info">
@@ -23,12 +23,27 @@ export default {
       }
     }
   },
+  computed: {
+    showImage() {
+      return this.goodsItem.image || this.goodsItem.show.img
+    }
+  },
   methods: {
     imageLoad() {
-      this.$bus.$emit('itemImageLoad')
+      if (this.$route.path.indexOf('/home') == 0){
+        this.$bus.$emit('itemImageLoad')
+      }
+      else if (this.$route.path.indexOf('/detail') == 0){
+        this.$bus.$emit('detailItemImgLoad')
+      }
     },
     itemClick() {
-      this.$router.push('/detail:iid' + this.goodsItem.iid)
+      if(this.goodsItem.iid){
+        this.$router.push('/detail:iid' + this.goodsItem.iid)
+      }
+      else {
+        this.$router.push('/detail:iid' + this.goodsItem.item_id)
+      }
       // this.$router.push({
       //   path: '/detail',
       //   query: {
