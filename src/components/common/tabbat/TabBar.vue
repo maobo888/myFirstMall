@@ -14,6 +14,7 @@ export default {
 #tab-bar {
   display: flex; /*规定元素应该生成的框的类型*/
   background-color: #f6f6f6;
+  z-index:auto;
 
   position: fixed; /*规定元素的定位类型*/
   left: 0;

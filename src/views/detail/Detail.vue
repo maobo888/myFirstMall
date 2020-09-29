@@ -22,7 +22,7 @@
     </scroll>
     <back-top @click.native="backClick"
               v-show="isShowBackTop"/>
-    <detail-button-bar/>
+    <detail-button-bar @addToCart="addToCart"/>
   </div>
 </template>
 
@@ -40,15 +40,15 @@ import {getDetail, Goods, Shop, GoodsParam, getRecommend} from 'network/detail'
 
 import Scroll from "components/common/scroll/Scroll";
 import GoodList from "components/content/goods/GoodList";
-import {debounce} from "../../common/utils";
-import BackTop from "components/content/backTop/BackTop";
+import {debounce} from "common/utils";
+import {MiXinBackTop} from "common/mixin";
 
 export default {
   name: "Detail",
   data() {
     return {
       iid: null,
-      topImages: [],
+      topImages: [],//轮播图
       goods: {},
       shop: {},
       detailInfo: {},
@@ -58,7 +58,6 @@ export default {
       themeTopYs: [],
       getThemeTopY: null,
       currentIndex: 0,
-      isShowBackTop: false, //是否展示回到顶部按钮
     }
   },
   components: {
@@ -72,8 +71,8 @@ export default {
     DetailButtonBar,
     GoodList,
     Scroll,
-    BackTop
   },
+  mixins: [MiXinBackTop],
   created() {
     // 1.保存传入的iid,并去除字符串前的"iid:"
     this.iid = this.$route.params.id.substr(4)
@@ -119,21 +118,22 @@ export default {
       this.$refs.scroll.refresh()
     },
     titleClick(index){
+      const Y = this.themeTopYs[index]+44;
       switch (index){
         case 0: {
-          this.$refs.scroll.scrollTo(0,this.themeTopYs[index]);
+          this.$refs.scroll.scrollTo(0,Y);
           break;
         }
         case 1:{
-          this.$refs.scroll.scrollTo(0,this.themeTopYs[index]);
+          this.$refs.scroll.scrollTo(0,Y);
           break;
         }
         case 2:{
-          this.$refs.scroll.scrollTo(0,this.themeTopYs[index]);
+          this.$refs.scroll.scrollTo(0,Y);
           break;
         }
         case 3:{
-          this.$refs.scroll.scrollTo(0,this.themeTopYs[index]);
+          this.$refs.scroll.scrollTo(0,Y);
           break;
         }
       }
@@ -162,16 +162,26 @@ export default {
         //   this.$refs.detailnavbar.currentIndex = this.currentIndex
         // }
         if (this.currentIndex !== i &&
-          (positionY <= this.themeTopYs[i] && positionY >= this.themeTopYs[i+1])){
+          (positionY <= (this.themeTopYs[i]+44) && positionY >= (this.themeTopYs[i+1]+44))){
           this.currentIndex = i;
           this.$refs.detailnavbar.currentIndex = this.currentIndex
         }
       }
       // 1.判断BackTop是否显示
-      this.isShowBackTop = (-position.y) > 1000
+      this.listenShowBackTop(position);
     },
-    backClick(){
-      this.$refs.scroll.scrollTo(0,0)//把内容滚动到指定的坐标
+    addToCart() {
+      // 1.获取购物车需要展示的信息
+      const product = {}
+      product.image = this.themeTopYs[0];
+      product.title = this.goods.title;
+      product.desc = this.goods.desc;
+      product.price = this.goods.realPrice;
+      product.iid = this.iid;
+      product.count = 1;
+
+      // 2.将商品添加到购物车
+      this.$store.dispatch('addCart',product)
     }
   }
 }

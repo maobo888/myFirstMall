@@ -37,11 +37,10 @@ import FeatureView from "./childComps/FeatureView";
 import TabControl from "components/content/tabControl/TabControl";
 import GoodList from "components/content/goods/GoodList";
 import Scroll from "components/common/scroll/Scroll";
-import BackTop from "components/content/backTop/BackTop";
 
 import {getHomeMultidata, getHomeGoods} from "network/home"
 import {debounce} from "common/utils";
-import {test} from 'common/mixin'
+import {MiXinBackTop} from "common/mixin";
 
 export default {
   name: "Home",
@@ -53,9 +52,8 @@ export default {
     TabControl,
     GoodList,
     Scroll,
-    BackTop,
   },
-  mixins:[test],
+  mixins:[MiXinBackTop],
   data() {
     return {
       banners: [],
@@ -66,7 +64,6 @@ export default {
         'sell': {page: 0, list: []},
       },
       currentType: 'pop',   //当前商品要展示的类型
-      isShowBackTop: false, //是否展示回到顶部按钮
       tabOffsetTop: 0,      //tab-control的吸顶位置
       isTabFixed: false,    //决定tabControl是否吸顶
       saveY: 0,             //保存用户刷到页面的位置
@@ -89,7 +86,6 @@ export default {
   mounted() {
     // 1.图片加载完成的事件监听
     const refresh = debounce(this.$refs.scroll.refresh, 200)
-
     // 监听item中图片加载完成
     this.$bus.$on('itemImageLoad',() => {
       refresh()
@@ -128,12 +124,9 @@ export default {
       this.$refs.tabControl1.currentIndex = index;
       this.$refs.tabControl2.currentIndex = index;
     },
-    backClick(){
-      this.$refs.scroll.scrollTo(0,0)//把内容滚动到指定的坐标
-    },
     contentScroll(position){
       // 1.判断BackTop是否显示
-      this.isShowBackTop = (-position.y) > 1000
+      this.listenShowBackTop(position);
 
       // 2.决定tabControl是否吸顶(position: fixed)
       this.isTabFixed = (-position.y) > this.tabOffsetTop
@@ -194,7 +187,9 @@ export default {
 }
 
 .content {
+  z-index: 0;
   position: absolute;
+  overflow: hidden;
   top: 44px;
   bottom: 49px;
   left: 0;
