@@ -1,164 +1,152 @@
 <template>
-  <div class="wrapper">
-    <ul class="content">
-      <!--    1.无论是否设置click：false，button都可以点击-->
-      <button @click="btnClick">按钮</button>
-      <!--    2.必须设置click：true，那么div才能监听点击-->
-      <div @click="btnClick">hehehe</div>
-      <li>information1</li>
-      <li>information2</li>
-      <li>information3</li>
-      <li>information4</li>
-      <li>information5</li>
-      <li>information6</li>
-      <li>information7</li>
-      <li>information8</li>
-      <li>information9</li>
-      <li>information10</li>
-      <li>information11</li>
-      <li>information12</li>
-      <li>information13</li>
-      <li>information14</li>
-      <li>information15</li>
-      <li>information16</li>
-      <li>information17</li>
-      <li>information18</li>
-      <li>information19</li>
-      <li>information20</li>
-      <li>information21</li>
-      <li>information22</li>
-      <li>information23</li>
-      <li>information24</li>
-      <li>information25</li>
-      <li>information26</li>
-      <li>information27</li>
-      <li>information28</li>
-      <li>information29</li>
-      <li>information30</li>
-      <li>information31</li>
-      <li>information32</li>
-      <li>information33</li>
-      <li>information34</li>
-      <li>information35</li>
-      <li>information36</li>
-      <li>information37</li>
-      <li>information38</li>
-      <li>information39</li>
-      <li>information40</li>
-      <li>information41</li>
-      <li>information42</li>
-      <li>information43</li>
-      <li>information44</li>
-      <li>information45</li>
-      <li>information46</li>
-      <li>information47</li>
-      <li>information48</li>
-      <li>information49</li>
-      <li>information50</li>
-      <li>information51</li>
-      <li>information52</li>
-      <li>information53</li>
-      <li>information54</li>
-      <li>information55</li>
-      <li>information56</li>
-      <li>information57</li>
-      <li>information58</li>
-      <li>information59</li>
-      <li>information60</li>
-      <li>information61</li>
-      <li>information62</li>
-      <li>information63</li>
-      <li>information64</li>
-      <li>information65</li>
-      <li>information66</li>
-      <li>information67</li>
-      <li>information68</li>
-      <li>information69</li>
-      <li>information70</li>
-      <li>information71</li>
-      <li>information72</li>
-      <li>information73</li>
-      <li>information74</li>
-      <li>information75</li>
-      <li>information76</li>
-      <li>information77</li>
-      <li>information78</li>
-      <li>information79</li>
-      <li>information80</li>
-      <li>information81</li>
-      <li>information82</li>
-      <li>information83</li>
-      <li>information84</li>
-      <li>information85</li>
-      <li>information86</li>
-      <li>information87</li>
-      <li>information88</li>
-      <li>information89</li>
-      <li>information90</li>
-      <li>information91</li>
-      <li>information92</li>
-      <li>information93</li>
-      <li>information94</li>
-      <li>information95</li>
-      <li>information96</li>
-      <li>information97</li>
-      <li>information98</li>
-      <li>information99</li>
-      <li>information100</li>
-    </ul>
+  <div id="category">
+    <nav-bar class="nav-bar"><div slot="center">商品分类</div></nav-bar>
+    <div class="content">
+      <tab-menu :categories="categories"
+                @selectItem="selectItem"/>
+
+      <scroll id="tab-content"
+              :data="[categoryData]"
+              ref="scroll">
+        <div>
+          <tab-content-category :subcategories="showSubcategory"/>
+          <tab-control :titles="['综合', '新品', '销量']"
+                       @itemClick="tabClick"/>
+          <goods-list :goods="showCategoryDetail"/>
+        </div>
+      </scroll>
+    </div>
   </div>
 </template>
 
 <script>
-import BScroll from '@better-scroll/core'
-import PullUp from '@better-scroll/pull-up'
+  import NavBar from 'components/common/navbar/NavBar'
 
-BScroll.use(PullUp);
+  import TabMenu from './childComps/TabMenu'
+  import TabContentCategory from './childComps/TabContentCategory'
 
-export default {
-  name: "Category",
-  data(){
-    return {
-      scroll
+
+  import TabControl from 'components/content/tabControl/TabControl'
+  import Scroll from 'components/common/scroll/Scroll'
+  import GoodsList from 'components/content/goods/GoodList'
+
+  import {getCategory, getSubcategory, getCategoryDetail} from "network/category";
+  import {POP, SELL, NEW} from "common/const";
+  import {tabControlMixin} from "@/common/mixin";
+
+  export default {
+		name: "Category",
+    components: {
+		  NavBar,
+      TabMenu,
+      TabControl,
+      Scroll,
+      TabContentCategory,
+      GoodsList
+    },
+    mixins: [tabControlMixin],
+    data() {
+		  return {
+		    categories: [],
+        categoryData: {
+        },
+        currentIndex: -1
+      }
+    },
+    created() {
+		  // 1.请求分类数据
+      this._getCategory()
+
+      // 2.监听图片加载完成
+	    this.$bus.$on('imgLoad', () => {
+		    this.$refs.scroll.refresh()
+	    })
+    },
+    computed: {
+		  showSubcategory() {
+		    if (this.currentIndex === -1) return {}
+        return this.categoryData[this.currentIndex].subcategories
+      },
+      showCategoryDetail() {
+		    if (this.currentIndex === -1) return []
+		    return this.categoryData[this.currentIndex].categoryDetail[this.currentType]
+      }
+    },
+    methods: {
+		  _getCategory() {
+		    getCategory().then(res => {
+		      // 1.获取分类数据
+		      this.categories = res.data.category.list
+			    console.log(res);
+			    // 2.初始化每个类别的子数据
+          for (let i = 0; i < this.categories.length; i++) {
+            this.categoryData[i] = {
+              subcategories: {},
+              categoryDetail: {
+                'pop': [],
+                'new': [],
+                'sell': []
+              }
+            }
+          }
+          // 3.请求第一个分类的数据
+          this._getSubcategories(0)
+        })
+      },
+      _getSubcategories(index) {
+        this.currentIndex = index;
+		    const mailKey = this.categories[index].maitKey;
+        getSubcategory(mailKey).then(res => {
+          this.categoryData[index].subcategories = res.data
+          this.categoryData = {...this.categoryData}
+          this._getCategoryDetail(POP)
+          this._getCategoryDetail(SELL)
+          this._getCategoryDetail(NEW)
+        })
+      },
+      _getCategoryDetail(type) {
+		    // 1.获取请求的miniWallkey
+        const miniWallkey = this.categories[this.currentIndex].miniWallkey;
+        // 2.发送请求,传入miniWallkey和type
+		    getCategoryDetail(miniWallkey, type).then(res => {
+		      // 3.将获取的数据保存下来
+		      this.categoryData[this.currentIndex].categoryDetail[type] = res
+          this.categoryData = {...this.categoryData}
+        })
+      },
+      /**
+       * 事件响应相关的方法
+       */
+      selectItem(index) {
+        this._getSubcategories(index)
+      }
     }
-  },
-  //注意 mounted 不会保证所有的子组件也都一起被挂载。
-  // 如果你希望等到整个视图都渲染完毕，
-  // 可以在 mounted 内部使用 vm.$nextTick：
-  mounted: function () {
-    // this.$nextTick(function () {
-    //   new BScroll('.wrapper',{})
-    // })
-    this.scroll = new BScroll(document.querySelector('.wrapper'),{
-      probeTimer: 3,
-      click: true,
-      pullUpLoad: true
-    })
-
-    this.scroll.on('scroll',(position) => {
-    })
-
-    this.scroll.on('pullingUp',() => {
-      console.log('上拉加载更多');
-      setTimeout(() => {
-        this.scroll.finishPullUp()
-      },2000)
-    })
-  },
-  methods:{
-    btnClick() {
-      console.log('btnClick');
-    }
-  }
-}
+	}
 </script>
 
 <style scoped>
-.wrapper {
-  /*父盒子必须设置高度*/
-  height: 150px;
-  background-color: #c4f691;
-  overflow: hidden;
-  /*overflow-y: scroll;*/
-}
+  #category {
+    height: 100vh;
+  }
+
+  .nav-bar {
+    background-color: var(--color-tint);
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .content {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 44px;
+    bottom: 49px;
+
+    display: flex;
+  }
+
+  #tab-content {
+    height: 100%;
+    flex: 1;
+  }
 </style>

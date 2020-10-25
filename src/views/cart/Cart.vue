@@ -6,12 +6,13 @@
     </nav-bar>
 
 <!--    商品列表-->
-    <scroll class="content"
-            :probeType="3">
+    <scroll :probeType="3"
+            class="content">
       <cart-list></cart-list>
     </scroll>
 
 <!--    底部汇总-->
+    <cart-bottom-bar/>
   </div>
 </template>
 
@@ -19,6 +20,7 @@
 import NavBar from "components/common/navbar/NavBar";
 import CartList from "./childComps/CartList";
 import Scroll from "components/common/scroll/Scroll";
+import CartBottomBar from './childComps/CartBottomBar'
 
 import {mapGetters} from 'vuex'
 
@@ -27,6 +29,7 @@ export default {
   components:{
     NavBar,
     CartList,
+    CartBottomBar,
     Scroll
   },
   computed:{
@@ -34,7 +37,8 @@ export default {
     //   return this.$store.getters.cartLength
     // }
     ...mapGetters([
-      'cartLength'
+      'cartLength',
+      'cartList'
     ])
     // ...mapGetters({
     //   length:'cartLength'
