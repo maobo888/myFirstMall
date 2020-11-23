@@ -37,7 +37,7 @@
       }
     },
     computed: {
-    	scrollY() {
+      getScrollY() {
     		return this.scroll.y
       }
     },
@@ -72,7 +72,7 @@
       refresh() {
         this.scroll && this.scroll.refresh && this.scroll.refresh()
       },
-      finishedPullUp() {
+      finishPullUp() {
         this.scroll && this.scroll.finishPullUp && this.scroll.finishPullUp()
       },
       scrollTo(x, y, time=100) {

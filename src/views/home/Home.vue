@@ -97,7 +97,7 @@ export default {
   },
   deactivated() {
     // 1.保存y值
-    this.saveY = this.$refs.scroll.getScrollY();
+    this.saveY = this.$refs.scroll.getScrollY;
 
     // 2.取消全局事件监听
   },
